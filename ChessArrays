@@ -1,0 +1,455 @@
+import React, { useState, useEffect } from 'react';
+
+// --- AP CS A Questions Data ---
+const QUESTIONS = [
+  {
+    q: "Consider the following code segment:\nint[][] grid = new int[3][3];\nfor (int r = 0; r < grid.length; r++) {\n  for (int c = 1; c < grid[0].length; c++) {\n    grid[r][c] = r / c;\n  }\n}\nWhat is the value of grid[1][2] after the code segment has completed?",
+    options: ["1", "2", "0", "3"],
+    answer: 2
+  },
+  {
+    q: "Consider the following code segment:\nint[][] matrix = {{2, 4, 6}, {8, 10, 12}, {14, 16, 18}};\nSystem.out.println(matrix[0][2] + matrix[2][0] + matrix[1][1]);\n\nWhat will be output as a result?",
+    options: ["28", "30", "32", "26"],
+    answer: 1
+  },
+  {
+    q: "Consider the declaration:\nint[][] arr = new int[5][4];\nWhich of the following will cause an ArrayIndexOutOfBoundsException?\nI. arr[4][3]\nII. arr[5][0]\nIII. arr[0][4]",
+    options: ["I only", "II only", "II and III only", "I, II, and III"],
+    answer: 2
+  },
+  {
+    q: "Consider the following code.\nint[][] data = {{10, 20}, {30, 40}, {50, 60}};\nfor (int r = 0; r < data.length; r++) {\n  for (int c = 0; c < data[0].length; c++) {\n    if (r == c) {\n      data[r][c] *= 2;\n    }\n  }\n}\nWhat does data[1][1] equal after execution?",
+    options: ["40", "60", "80", "20"],
+    answer: 2
+  },
+  {
+    q: "Consider the following method:\npublic static int[] getColumnSums(int[][] mat) {\n  int[] sums = new int[mat[0].length];\n  for (int c = 0; c < mat[0].length; c++) {\n    for (int r = 0; r < mat.length; r++) {\n      sums[c] += mat[r][c];\n    }\n  }\n  return sums;\n}\nIf int[][] m = {{1, 2}, {3, 4}, {5, 6}}; is passed in as mat, what is returned?",
+    options: ["{6, 15}", "{9, 12}", "{3, 7, 11}", "{1, 3, 5}"],
+    answer: 1
+  },
+  {
+    q: "Which loop structure correctly prints all elements of int[][] table row by row?",
+    options: [
+      "for (int[] row : table) {\n  for (int n : row) {\n    System.out.print(n);\n  }\n}",
+      "for (int r = 0; r < table.length; r++) {\n  System.out.print(table[r]);\n}",
+      "for (int c = 0; c < table[0].length; c++) {\n  for (int r = 0; r < table.length; r++) {\n    System.out.print(table[r][c]);\n  }\n}",
+      "for (int n : table) {\n  System.out.print(n);\n}"
+    ],
+    answer: 0
+  },
+  {
+    q: "Consider the following code:\nint[][] vals = {{1, 2}, {3, 4}, {5, 6}};\nfor (int c = 0; c < vals[0].length; c++) {\n  for (int r = 0; r < vals.length; r++) {\n    System.out.print(vals[r][c] + \" \");\n  }\n}\nWhat is the output?",
+    options: ["1 2 3 4 5 6", "1 2 3 4 5 6 (in columns)", "6 5 4 3 2 1", "1 3 5 2 4 6"],
+    answer: 3
+  },
+  {
+    q: "Consider the following method intended to find the maximum value in a 2D array:\npublic static int findMax(int[][] grid) {\n  int max = grid[0][0];\n  for (int[] row : grid) {\n    for (int val : row) {\n      /* missing code */\n    }\n  }\n  return max;\n}\nWhat should replace /* missing code */?",
+    options: ["if (row > max) max = row;", "if (val > max) max = val;", "if (val < max) max = val;", "max = val;"],
+    answer: 1
+  },
+  {
+    q: "Consider the following code segment.\nint[][] grid = new int[3][3];\nfor (int r = 0; r < grid.length; r++) {\n  for (int c = 0; c < grid[0].length; c++) {\n    grid[r][c] = r * c;\n  }\n}\nWhat is the value of grid[2][1] after the code segment has completed?",
+    options: ["1", "0", "3", "2"],
+    answer: 3
+  },
+  {
+    q: "Consider the following method for calculating the sum of all odd numbers in a two-dimensional array.\npublic static int sumOdds(int[][] values) {\n  int sum = 0;\n  for (int[] row : values) {\n    for (int val : row) {\n      /* missing code */\n    }\n  }\n  return sum;\n}\nWhich of the following can replace /* missing code */?",
+    options: ["if (val % 2 != 0) sum += val;", "if (val / 2 != 0) sum += val;", "if (val % 2 == 0) sum += val;", "if (sum % 2 != 0) sum += val;"],
+    answer: 0
+  },
+  {
+    q: "Consider the following code segment.\nint[][] data = {{5, 10, 15}, {20, 25, 30}};\nfor (int r = 0; r < data.length; r++) {\n  for (int c = 0; c < data[0].length; c++) {\n    if (r == c) {\n      data[r][c] = 0;\n    }\n  }\n}\nWhat are the contents of data after this block is executed?",
+    options: ["{{5, 10, 15}, {20, 25, 30}}", "{{0, 10, 15}, {20, 25, 30}}", "{{0, 0, 0}, {0, 0, 0}}", "{{0, 10, 15}, {20, 0, 30}}"],
+    answer: 3
+  },
+  {
+    q: "Consider the following code segment.\nint[][] grid = {{1, 2}, {3, 4}, {5, 6}};\nint total = 0;\nfor (int r = 0; r < grid.length; r++) {\n  for (int c = 0; c < grid[r].length; c++) {\n    if (grid[r][c] > 2) {\n      total += grid[r][c];\n    }\n  }\n}\nWhat is the value of total after this code executes?",
+    options: ["9", "15", "21", "18"],
+    answer: 3
+  },
+  {
+    q: "Consider the following method, which performs a linear search...\npublic static int findFirst(int[] arr, int target) {\n  for (int i = 0; i < arr.length; i++) {\n    if (arr[i] == target) return i;\n  }\n  return -1;\n}\nint[] nums = {5, 12, 8, 12, 3};\nSystem.out.println(findFirst(nums, 12));",
+    options: ["3", "1", "4", "-1"],
+    answer: 1
+  },
+  {
+    q: "Consider the following sorted array:\nint[] values = {10, 20, 30, 40, 50, 60, 70};\nA binary search is performed to find the target value 20. Assuming low = 0 and high = 6, and mid = (low+high)/2. What is the sequence of indices calculated for mid?",
+    options: ["0, 1", "3, 2, 1", "3, 1", "3, 4, 1"],
+    answer: 2
+  },
+  {
+    q: "int[] arr = {64, 25, 12, 22, 11};\nWhat will the array arr look like after two complete passes of the selection sort algorithm?",
+    options: ["{11, 25, 12, 22, 64}", "{11, 12, 25, 22, 64}", "{11, 12, 22, 25, 64}", "{11, 22, 12, 25, 64}"],
+    answer: 1
+  },
+  {
+    q: "int[] arr = {12, 11, 13, 5, 6};\nWhat will the array arr look like after three complete passes of the insertion sort algorithm?",
+    options: ["{5, 11, 12, 13, 6}", "{5, 6, 11, 12, 13}", "{11, 12, 13, 5, 6}", "{11, 12, 5, 13, 6}"],
+    answer: 0
+  },
+  {
+    q: "public static String mystery(String s) {\n  if (s.length() <= 1) return s;\n  return mystery(s.substring(1)) + s.charAt(0);\n}\nSystem.out.println(mystery(\"APCSA\"));\nWhat is printed?",
+    options: ["APCSA", "ACSPA", "ASCPA", "A"],
+    answer: 2
+  },
+  {
+    q: "public static int compute(int n) {\n  if (n <= 1) return 1;\n  return n + compute(n - 2);\n}\nWhat is returned by the call compute(6)?",
+    options: ["13", "12", "10", "7"],
+    answer: 0
+  },
+  {
+    q: "public static int binarySearch(int[] arr, int target, int low, int high) {\n  if (low > high) return -1;\n  int mid = (low + high) / 2;\n  if (arr[mid] == target) return mid;\n  else if (arr[mid] > target) return binarySearch(arr, target, low, mid - 1);\n  else return binarySearch(arr, target, mid + 1, high);\n}\nint[] data = {5, 10, 15, 20, 25};\nSystem.out.println(binarySearch(data, 25, 0, 4));",
+    options: ["-1", "2", "3", "4"],
+    answer: 3
+  },
+  {
+    q: "int[] data = {15, 5, 20, 10};\nWhat is the state of the array (or the specific subarray being processed) immediately after the first successful merge operation performed by the recursive Merge Sort algorithm?",
+    options: ["{5, 15}", "{15, 5}", "{5, 10, 15, 20}", "{15, 5, 10, 20}"],
+    answer: 0
+  }
+];
+
+// --- Chess Logic ---
+const INITIAL_BOARD = [
+  ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+  ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+  [null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null],
+  ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+  ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+];
+
+const isWhite = (p) => p && ['♙', '♖', '♘', '♗', '♕', '♔'].includes(p);
+const isBlack = (p) => p && ['♟', '♜', '♞', '♝', '♛', '♚'].includes(p);
+const isOpponent = (p, turn) => (turn === 'w' ? isBlack(p) : isWhite(p));
+const isOwn = (p, turn) => (turn === 'w' ? isWhite(p) : isBlack(p));
+
+const getValidMoves = (board, r, c, turn) => {
+  const piece = board[r][c];
+  if (!piece || !isOwn(piece, turn)) return [];
+  const moves = [];
+
+  const addIfValid = (nr, nc) => {
+    if (nr < 0 || nr > 7 || nc < 0 || nc > 7) return false;
+    const target = board[nr][nc];
+    if (isOwn(target, turn)) return false;
+    moves.push([nr, nc]);
+    return !target; // Return true to continue sliding if empty
+  };
+
+  const addRay = (dr, dc) => {
+    let nr = r + dr, nc = c + dc;
+    while (addIfValid(nr, nc)) { nr += dr; nc += dc; }
+  };
+
+  if (piece === '♙' || piece === '♟') {
+    const dir = piece === '♙' ? -1 : 1;
+    const startRow = piece === '♙' ? 6 : 1;
+    // Forward 1
+    if (r + dir >= 0 && r + dir <= 7 && !board[r + dir][c]) {
+      moves.push([r + dir, c]);
+      // Forward 2
+      if (r === startRow && !board[r + dir * 2][c]) {
+        moves.push([r + dir * 2, c]);
+      }
+    }
+    // Captures
+    if (c > 0 && r + dir >= 0 && r + dir <= 7 && isOpponent(board[r + dir][c - 1], turn)) moves.push([r + dir, c - 1]);
+    if (c < 7 && r + dir >= 0 && r + dir <= 7 && isOpponent(board[r + dir][c + 1], turn)) moves.push([r + dir, c + 1]);
+  } else if (piece === '♘' || piece === '♞') {
+    const jumps = [[2, 1], [1, 2], [-1, 2], [-2, 1], [-2, -1], [-1, -2], [1, -2], [2, -1]];
+    jumps.forEach(([dr, dc]) => addIfValid(r + dr, c + dc));
+  } else if (piece === '♗' || piece === '♝') {
+    [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([dr, dc]) => addRay(dr, dc));
+  } else if (piece === '♖' || piece === '♜') {
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dr, dc]) => addRay(dr, dc));
+  } else if (piece === '♕' || piece === '♛') {
+    [[1, 1], [1, -1], [-1, 1], [-1, -1], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dr, dc]) => addRay(dr, dc));
+  } else if (piece === '♔' || piece === '♚') {
+    [[1, 1], [1, -1], [-1, 1], [-1, -1], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dr, dc]) => addIfValid(r + dr, c + dc));
+  }
+  return moves;
+};
+
+export default function App() {
+  const [board, setBoard] = useState(INITIAL_BOARD);
+  const [turn, setTurn] = useState('w');
+  const [phase, setPhase] = useState('menu'); // menu, questioning, moving, computer_thinking, gameover
+  const [selectedSquare, setSelectedSquare] = useState(null);
+  const [validMoves, setValidMoves] = useState([]);
+  
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [message, setMessage] = useState("");
+  const [winner, setWinner] = useState(null);
+
+  const startGame = () => {
+    setBoard(INITIAL_BOARD);
+    setTurn('w');
+    setWinner(null);
+    setMessage("");
+    askQuestion('w');
+  };
+
+  const askQuestion = (playerTurn) => {
+    if (playerTurn === 'b') return; // Computer doesn't answer questions
+    const qIndex = Math.floor(Math.random() * QUESTIONS.length);
+    setCurrentQuestion({ ...QUESTIONS[qIndex], playerTurn });
+    setPhase('questioning');
+  };
+
+  const handleAnswer = (selectedIdx) => {
+    if (selectedIdx === currentQuestion.answer) {
+      setMessage("Correct! Make your move.");
+      setPhase('moving');
+    } else {
+      setMessage("Incorrect! You lose your turn.");
+      setPhase('waiting'); // Brief wait phase to read message
+      setTimeout(() => {
+        setTurn('b');
+        setPhase('computer_thinking');
+        setMessage("Computer is thinking...");
+      }, 2000);
+    }
+  };
+
+  // --- Computer AI Logic ---
+  useEffect(() => {
+    if (turn === 'b' && phase === 'computer_thinking') {
+      const timer = setTimeout(() => {
+        let allMoves = [];
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            if (isBlack(board[r][c])) {
+              const moves = getValidMoves(board, r, c, 'b');
+              moves.forEach(([vr, vc]) => {
+                allMoves.push({ sr: r, sc: c, vr, vc });
+              });
+            }
+          }
+        }
+
+        if (allMoves.length > 0) {
+          // AI Logic: Prioritize captures, otherwise random move
+          let move = allMoves[Math.floor(Math.random() * allMoves.length)];
+          const captures = allMoves.filter(m => isWhite(board[m.vr][m.vc]));
+          if (captures.length > 0) {
+            move = captures[Math.floor(Math.random() * captures.length)];
+          }
+
+          const newBoard = board.map(row => [...row]);
+          const capturedPiece = newBoard[move.vr][move.vc];
+          newBoard[move.vr][move.vc] = newBoard[move.sr][move.sc];
+          newBoard[move.sr][move.sc] = null;
+
+          // Auto Queen promotion for computer
+          if (newBoard[move.vr][move.vc] === '♟' && move.vr === 7) newBoard[move.vr][move.vc] = '♛';
+
+          setBoard(newBoard);
+
+          if (capturedPiece === '♔') {
+            setPhase('gameover');
+            setWinner('Computer');
+            setMessage("Checkmate! Computer wins!");
+          } else {
+            setTurn('w');
+            setMessage("Your turn! Answer to unlock.");
+            askQuestion('w');
+          }
+        }
+      }, 1000); // 1-second delay for realism
+      return () => clearTimeout(timer);
+    }
+  }, [turn, phase, board]);
+
+  const handleSquareClick = (r, c) => {
+    if (phase !== 'moving') return;
+
+    // If a piece is already selected, try to move
+    if (selectedSquare) {
+      const [sr, sc] = selectedSquare;
+      const isMoveValid = validMoves.some(([vr, vc]) => vr === r && vc === c);
+      
+      if (isMoveValid) {
+        const newBoard = board.map(row => [...row]);
+        const capturedPiece = newBoard[r][c];
+        newBoard[r][c] = newBoard[sr][sc];
+        newBoard[sr][sc] = null;
+        
+        // Auto Queen promotion
+        if (newBoard[r][c] === '♙' && r === 0) newBoard[r][c] = '♕';
+
+        setBoard(newBoard);
+        setSelectedSquare(null);
+        setValidMoves([]);
+
+        if (capturedPiece === '♚') {
+          setPhase('gameover');
+          setWinner('You');
+          setMessage(`Checkmate! You win!`);
+        } else {
+          setTurn('b');
+          setPhase('computer_thinking');
+          setMessage("Computer is thinking...");
+        }
+        return;
+      }
+    }
+
+    // Select a piece
+    const piece = board[r][c];
+    if (piece && isOwn(piece, turn)) {
+      setSelectedSquare([r, c]);
+      setValidMoves(getValidMoves(board, r, c, turn));
+    } else {
+      setSelectedSquare(null);
+      setValidMoves([]);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center py-8 font-sans">
+      <div className="max-w-4xl w-full px-4">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-blue-400">AP CS A: Chess Review Game</h1>
+            <p className="text-slate-400">Answer correctly to move. Wrong answers lose a turn!</p>
+          </div>
+          <button 
+            onClick={startGame} 
+            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold shadow transition"
+          >
+            {phase === 'menu' ? 'Start Game' : 'Restart Game'}
+          </button>
+        </div>
+
+        {/* Status Panel */}
+        {phase !== 'menu' && (
+          <div className="bg-slate-800 rounded-xl p-4 mb-6 flex items-center justify-between shadow-lg border border-slate-700">
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-3xl shadow-inner ${turn === 'w' ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                {turn === 'w' ? '♔' : '♚'}
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">{turn === 'w' ? "Your Turn" : "Computer's Turn"}</h2>
+                <p className={`text-sm ${message.includes('Incorrect') ? 'text-red-400' : 'text-green-400'}`}>
+                  {message || "Waiting for action..."}
+                </p>
+              </div>
+            </div>
+            
+            <div className="text-sm font-semibold tracking-wider text-slate-400 uppercase">
+              Phase: {phase.toUpperCase()}
+            </div>
+          </div>
+        )}
+
+        {/* Game Layout */}
+        {phase !== 'menu' ? (
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            
+            {/* Chess Board */}
+            <div className={`bg-slate-800 p-3 rounded-lg shadow-xl border border-slate-700 select-none ${phase !== 'moving' && phase !== 'gameover' ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div className="grid grid-cols-8 grid-rows-8 w-full max-w-[480px] aspect-square rounded overflow-hidden border-2 border-slate-900">
+                {board.map((row, r) => row.map((piece, c) => {
+                  const isLight = (r + c) % 2 === 0;
+                  const isSelected = selectedSquare && selectedSquare[0] === r && selectedSquare[1] === c;
+                  const isValidMove = validMoves.some(([vr, vc]) => vr === r && vc === c);
+                  
+                  return (
+                    <div 
+                      key={`${r}-${c}`}
+                      onClick={() => handleSquareClick(r, c)}
+                      className={`
+                        flex items-center justify-center text-4xl sm:text-5xl cursor-pointer relative
+                        ${isLight ? 'bg-amber-200' : 'bg-amber-800'}
+                        ${isSelected ? 'bg-green-400 ring-inset ring-4 ring-green-600' : ''}
+                      `}
+                    >
+                      <span className={`drop-shadow-md ${isBlack(piece) ? 'text-slate-900' : 'text-white'}`}>
+                        {piece}
+                      </span>
+                      {isValidMove && (
+                        <div className="absolute w-4 h-4 bg-black/30 rounded-full" />
+                      )}
+                    </div>
+                  );
+                }))}
+              </div>
+            </div>
+
+            {/* Question Panel */}
+            <div className="flex-1 w-full relative">
+              {phase === 'questioning' && currentQuestion && (
+                <div className="bg-slate-800 rounded-xl p-6 shadow-xl border-t-4 border-blue-500 animate-in fade-in slide-in-from-right-4">
+                  <h3 className="text-xl font-bold mb-4 text-blue-300">Answer to Unlock Move</h3>
+                  <div className="bg-slate-900 rounded p-4 mb-6 overflow-x-auto border border-slate-700">
+                    <pre className="text-slate-300 whitespace-pre-wrap font-mono text-sm">
+                      {currentQuestion.q}
+                    </pre>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {currentQuestion.options.map((opt, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(idx)}
+                        className="text-left bg-slate-700 hover:bg-blue-600 text-white px-4 py-3 rounded-lg transition border border-slate-600 hover:border-blue-400 focus:outline-none"
+                      >
+                        <span className="font-bold text-slate-400 mr-3">{String.fromCharCode(65 + idx)}.</span>
+                        <span className="font-mono">{opt}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {phase === 'moving' && (
+                <div className="bg-slate-800 rounded-xl p-8 shadow-xl border-t-4 border-green-500 text-center animate-in fade-in zoom-in-95">
+                  <div className="text-5xl mb-4">♟️</div>
+                  <h3 className="text-2xl font-bold text-green-400 mb-2">Move Unlocked!</h3>
+                  <p className="text-slate-300">
+                    Select your piece on the board and make your move.
+                  </p>
+                </div>
+              )}
+
+              {phase === 'gameover' && (
+                <div className="bg-slate-800 rounded-xl p-8 shadow-xl border-t-4 border-amber-500 text-center animate-in fade-in zoom-in-95">
+                  <div className="text-6xl mb-4">🏆</div>
+                  <h3 className="text-3xl font-bold text-amber-400 mb-2">{winner} Wins!</h3>
+                  <p className="text-slate-300 mb-6">
+                    The enemy King has been captured.
+                  </p>
+                  <button 
+                    onClick={startGame} 
+                    className="bg-amber-500 hover:bg-amber-400 text-slate-900 px-8 py-3 rounded-lg font-bold shadow transition w-full"
+                  >
+                    Play Again
+                  </button>
+                </div>
+              )}
+            </div>
+            
+          </div>
+        ) : (
+          <div className="bg-slate-800 rounded-xl p-12 text-center shadow-2xl border border-slate-700 max-w-2xl mx-auto mt-12">
+            <div className="text-6xl mb-6">♟️💻</div>
+            <h2 className="text-3xl font-bold text-white mb-4">Welcome to AP CS A Chess</h2>
+            <p className="text-slate-400 mb-8 text-lg">
+              Test your knowledge of 2D Arrays, Searching, Sorting, and Recursion. Answer a multiple choice question correctly to command your pieces. If you fail, the computer advances!
+            </p>
+            <button 
+              onClick={startGame} 
+              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-xl shadow-lg hover:shadow-blue-500/20 transition-all w-full max-w-sm"
+            >
+              Start Game (vs Computer)
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
