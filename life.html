@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark's Life Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #0f1115;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+
+        .serif { font-family: 'Merriweather', serif; }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .thought-bubble {
+            background: rgba(74, 144, 226, 0.1);
+            border-left: 4px solid #4a90e2;
+            transition: all 0.3s ease;
+        }
+
+        .divine-aura {
+            border-left: 4px solid #f1c40f;
+            background: rgba(241, 196, 15, 0.05);
+        }
+
+        .btn-action {
+            background: #1f2229;
+            border: 1px solid #333;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #2d323d;
+            border-color: #4a90e2;
+            color: #4a90e2;
+            transform: scale(1.02);
+        }
+
+        .location-tag {
+            background: #c0392b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="game-container" class="max-w-2xl w-full bg-neutral-900 rounded-lg shadow-2xl overflow-hidden border border-neutral-800">
+        <!-- Header -->
+        <div class="p-6 border-b border-neutral-800 flex justify-between items-center bg-black/40">
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">Mark's Life Simulator</h1>
+                <p id="status-display" class="text-xs text-neutral-500 uppercase tracking-widest mt-1">Status: Existential Crisis</p>
+            </div>
+            <span class="location-tag" id="loc-tag">China</span>
+        </div>
+
+        <!-- Main Display -->
+        <div id="display" class="p-8 min-h-[450px]">
+            <!-- Content injected here -->
+        </div>
+
+        <!-- Footer / Controls -->
+        <div id="controls" class="p-6 bg-black/30 border-t border-neutral-800 flex flex-wrap gap-3">
+            <!-- Buttons injected here -->
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            scene: 'pd_session',
+            freedomAttempted: false
+        };
+
+        const scenes = {
+            pd_session: {
+                title: "The Professional Development",
+                status: "Sitting on Couch",
+                description: `Mark sits on his couch. On screen, <span class="text-blue-400 font-semibold">Kathy Salmon</span> is discussing student retention. But Mark isn't listening. He is drawing a map to the coast in the margins of his notebook. Suddenly, the room grows cold. The air feels heavy, metallic.`,
+                thoughts: [
+                    "Kathy mentions 'engagement strategies.' Mark thinks about wire cutters.",
+                    "The screen glitches. A shadow passes over the laptop.",
+                    "The mountains of Taiwan seem like a dream he's waking up from."
+                ],
+                actions: [
+                    { text: "Look at the Map", target: 'escape_plan' },
+                    { text: "Ignore the Chill", target: 'stare' }
+                ]
+            },
+            stare: {
+                description: "The white wall seems to pulse. Mark wonders if his fatigue is playing tricks on him. Kathy Salmon's voice begins to distort, slowing down until it sounds like a grinding stone.",
+                actions: [
+                    { text: "Check the window", target: 'enrol_appears' }
+                ]
+            },
+            escape_plan: {
+                title: "The Blueprints of Freedom",
+                status: "Planning Escape",
+                description: "Mark traces the route from his apartment to the ferry. It's a short distance, but as his pen hits the coastline, he feels a sharp jerk at his ankles. He looks down. Spectral, golden chains are fused into his skin, leading deep into the floorboards.",
+                actions: [
+                    { text: "Try to break the chains", target: 'enrol_appears' }
+                ]
+            },
+            enrol_appears: {
+                title: "Enrol the Gatekeeper",
+                status: "Facing a Deity",
+                description: "The laptop light flares into a blinding, sickly yellow. A figure looms over the couch—<span class='text-yellow-500 font-bold'>Enrol</span>, the deity of Administrative Inertia. 'You seek the island across the water, Mark?' the deity boos. 'You are bound to this soil by your contracts, your debts, and my will.'",
+                thoughts: [
+                    "Enrol's eyes are like empty spreadsheets.",
+                    "The chains tighten as Mark thinks of Taipei."
+                ],
+                actions: [
+                    { text: "Plead for release", target: 'the_goblin' },
+                    { text: "Ask for a price", target: 'the_goblin' }
+                ]
+            },
+            the_goblin: {
+                title: "The Goblin Merchant",
+                status: "Bartering",
+                description: "Enrol gestures, and a small, hunched <span class='text-green-500 font-semibold'>Goblin</span> emerges from the shadow of the TV stand. He carries a key that glows with the scent of saltwater and freedom. 'The deity won't let you go for free,' the Goblin croaks. 'But I collect... precious things. Give me <span class='text-purple-400'>Asahi</span>. Trade your best friend, and the key is yours.'",
+                actions: [
+                    { text: "Look at the key", target: 'the_choice' },
+                    { text: "Refuse immediately", target: 'refusal' }
+                ]
+            },
+            the_choice: {
+                description: "Mark looks at the key. It represents the humid air of Taiwan, the life he yearns for, the end of Kathy Salmon's webinars. Then he thinks of Asahi waiting at home, ready to hear about his day. The person who makes this 'long' day bearable.",
+                actions: [
+                    { text: "Trade Asahi for freedom", target: 'betrayal' },
+                    { text: "I can't do it", target: 'refusal' }
+                ]
+            },
+            betrayal: {
+                description: "He reaches for the key, but his hand trembles. The moment he imagines the Goblin taking Asahi, his heart cold-reboots. He realizes that freedom without Asahi is just another type of white wall.",
+                actions: [
+                    { text: "Retract your hand", target: 'refusal' }
+                ]
+            },
+            refusal: {
+                title: "The Weight of Love",
+                status: "Bound but Loyal",
+                description: "Mark pulls back. 'No,' he whispers. 'Take the key back to the hells. I won't trade him.' The Goblin vanishes with a hiss. Enrol laughs, a sound like a stapler. The chains grow heavy. Mark is still in China. He is still on the couch. But he is still himself.",
+                actions: [
+                    { text: "Go find Asahi", target: 'asahi_reunion' }
+                ]
+            },
+            asahi_reunion: {
+                title: "Home",
+                status: "With Asahi",
+                description: "Mark shuts the laptop, cutting Kathy Salmon off mid-sentence. He walks to the other room where <span class='text-pink-400 font-bold'>Asahi</span> is waiting. The golden chains drag behind him, clinking on the tile, but as he sees his friend's face, the weight feels lighter. 'How was your day?' Asahi asks. Mark smiles sadly. 'Long. But I'm here.'",
+                actions: [
+                    { text: "The End", target: 'start' }
+                ]
+            },
+            start: {
+                description: "Would you like to return to the couch?",
+                actions: [
+                    { text: "Restart", target: 'pd_session' }
+                ]
+            }
+        };
+
+        function render(sceneKey) {
+            const display = document.getElementById('display');
+            const controls = document.getElementById('controls');
+            const statusDisplay = document.getElementById('status-display');
+            const scene = scenes[sceneKey];
+
+            state.scene = sceneKey;
+            statusDisplay.innerText = `Status: ${scene.status || "Processing..."}`;
+
+            let html = `<div class="fade-in">`;
+            html += `<h2 class="serif text-2xl font-bold mb-4 text-white">${scene.title || ""}</h2>`;
+            html += `<p class="text-neutral-400 leading-relaxed mb-6">${scene.description}</p>`;
+            
+            if (scene.thoughts) {
+                const thought = scene.thoughts[Math.floor(Math.random() * scene.thoughts.length)];
+                const isDivine = sceneKey.includes('enrol') ? 'divine-aura' : '';
+                html += `<div class="thought-bubble p-4 italic text-sm text-neutral-300 mb-6 ${isDivine}">"${thought}"</div>`;
+            }
+            
+            html += `</div>`;
+            display.innerHTML = html;
+
+            controls.innerHTML = "";
+            scene.actions.forEach(action => {
+                const btn = document.createElement('button');
+                btn.className = "btn-action px-4 py-2 rounded text-sm font-medium text-neutral-200";
+                btn.innerText = action.text;
+                btn.onclick = () => render(action.target);
+                controls.appendChild(btn);
+            });
+
+            const locTag = document.getElementById('loc-tag');
+            if (sceneKey === 'enrol_appears') {
+                locTag.innerText = "The Void";
+                locTag.style.background = "#000";
+            } else if (sceneKey.includes('taiwan')) {
+                locTag.innerText = "Dreaming of Taiwan";
+                locTag.style.background = "#2980b9";
+            } else if (sceneKey === 'asahi_reunion') {
+                locTag.innerText = "Safe Home";
+                locTag.style.background = "#27ae60";
+            } else {
+                locTag.innerText = "China";
+                locTag.style.background = "#c0392b";
+            }
+        }
+
+        window.onload = () => render('pd_session');
+    </script>
+</body>
+</html>
